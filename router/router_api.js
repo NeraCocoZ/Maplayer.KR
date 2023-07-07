@@ -13,13 +13,17 @@ const express = require("express"); // Express
 const router = express.Router(); // Express Router
 const request = require("request-promise-native"); // Request-Promise-Native
 const cheerio = require("cheerio"); // Cheerio
+const fs = require("fs"); // File System
 
 // Variable Require
 let api_version = "v1";
 
+// Metadata Require
+const max_exp_json = JSON.parse(fs.readFileSync("./metadata/max_exp.json"));
+
 // Router GET
-// GET api/v1/maple_union_level?charactername=${character_name}
-router.get(`/${api_version}/maple_union_level`, async (req, res) => {
+// GET api/v1/maple/union?charactername=${character_name}
+router.get(`/${api_version}/maple/union`, async (req, res) => {
     // Variable Require
     let character_name = req.query.charactername;
     let result = {
@@ -57,8 +61,8 @@ router.get(`/${api_version}/maple_union_level`, async (req, res) => {
     res.json(result);
 });
 
-// GET api/v1/maple_character_data?charactername=${character_name}
-router.get(`/${api_version}/maple_character_data`, async (req, res) => {
+// GET api/v1/maple/characterdata?charactername=${character_name}
+router.get(`/${api_version}/maple/characterdata`, async (req, res) => {
     // Variable Require
     let character_name = req.query.charactername;
     let result = {
@@ -81,16 +85,36 @@ router.get(`/${api_version}/maple_character_data`, async (req, res) => {
         // Character Name
         let maple_character_name_text = maple_character_data_cheerio("tr.search_com_chk > td.left > dl > dt > a").text();
 
-        // Character Level
-        let maple_character_level_text = maple_character_data_cheerio("tr.search_com_chk > td:nth-child(3)").text();
-
         // Character Class
         let maple_character_class_text = maple_character_data_cheerio("tr.search_com_chk > td.left > dl > dd").text();
 
+        // Character Level
+        let maple_character_level_text = maple_character_data_cheerio("tr.search_com_chk > td:nth-child(3)").text();
+
+        // Character Exp
+        let maple_character_exp_text = maple_character_data_cheerio("tr.search_com_chk > td:nth-child(4)").text();
+        let maple_character_exp_number = Number(maple_character_exp_text.replace(/,/g, ""));
+
+        // Character Exp Persent
+        let maple_character_max_exp = max_exp_json[maple_character_level_text.replace("Lv.", "")];
+        let maple_character_exp_persent = (maple_character_exp_number / maple_character_max_exp * 100).toFixed(3);
+
+        // Character Pop
+        let maple_character_pop_text = maple_character_data_cheerio("tr.search_com_chk > td:nth-child(5)").text();
+        let maple_character_pop_number = Number(maple_character_pop_text.replace(/,/g, ""))
+
+        // Character Guild Name
+        let maple_character_guild_name = maple_character_data_cheerio("tr.search_com_chk > td:nth-child(6)").text();
+
         result.data = {
             character_name: maple_character_name_text,
+            character_class: maple_character_class_text,
             character_level: maple_character_level_text,
-            character_class: maple_character_class_text
+            character_exp: maple_character_exp_number,
+            character_max_exp: maple_character_max_exp,
+            character_exp_persent: maple_character_exp_persent,
+            character_pop: maple_character_pop_number,
+            character_guild_name: maple_character_guild_name
         };
     }
     catch(err){

@@ -2,8 +2,10 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "cheerio": "^1.0.0-rc.12",
+    "chromedriver": "^114.0.2",
     "express": "^4.18.2",
     "request": "^2.88.2",
-    "request-promise-native": "^1.0.9"
+    "request-promise-native": "^1.0.9",
+    "selenium-webdriver": "^4.10.0"
   }
 }
