@@ -125,6 +125,70 @@ router.get(`/${api_version}/maple/characterdata`, async (req, res) => {
     }
 
     res.json(result);
-})
+});
+
+// GET api/v1/maple/characterlist?apikey=${api_key}
+router.get(`/${api_version}/maple/characterlist`, async (req, res) => {
+    // Variable Require
+    let api_key = req.query.apikey;
+    let result = {
+        result: true
+    }
+    let character_list = [];
+
+    // Maplestory get API
+    for(let i = 1; i <= 30; i ++){
+        // Variable Require
+        let date = new Date();
+
+        // Set Date
+        date.setDate(date.getDate() - i);
+
+        // Get Date
+        let year = date.getFullYear();
+        let month = (date.getMonth() + 1).toString().padStart(2, "0");
+        let day = date.getDate().toString().padStart(2, "0");
+
+        let date_string = `${year}-${month}-${day}`;
+
+        // Request Option
+        let request_option = {
+            url: "https://public.api.nexon.com/openapi/maplestory/v1/cube-use-results?count=1000&date=2023-06-29",
+            headers: {
+                Authorization: api_key
+            },
+            qs: {
+                count: 1000,
+                date: date_string
+            }
+        };
+
+        // Maplestory Character List Get API
+        try{
+            let maple_characterlist_json = JSON.parse(await request(request_option));
+            let maple_characterlist_cube_histories = maple_characterlist_json.cube_histories;
+            
+            if(maple_characterlist_cube_histories.length != 0){
+                for(let data in maple_characterlist_cube_histories){
+                    let maple_characterlist_charactername = maple_characterlist_cube_histories[data].character_name;
+
+                    if(character_list.indexOf(maple_characterlist_charactername) == -1){
+                        character_list.push(maple_characterlist_charactername);
+                    }
+                }
+            }
+
+            result.characterlist = character_list;
+        }
+        catch(err){
+            result.result = false;
+            result.message = "알수없는 오류가 발생했습니다."
+            
+            console.error(err)
+        }
+    }
+
+    res.json(result);
+});
 
 module.exports = router;
