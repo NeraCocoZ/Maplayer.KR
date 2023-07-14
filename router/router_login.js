@@ -143,7 +143,7 @@ router.post(`/uploadapikey`, async (req, res) => {
 
             // Upload API Key
             let userdata = JSON.parse(fs.readFileSync(`./data/userdata/${login_session}.json`, "utf-8"));
-            userdata.apikey = apikey;
+            userdata.temp_apikey = apikey;
             fs.writeFileSync(`./data/userdata/${login_session}.json`, JSON.stringify(userdata, null, 4), "utf-8");
         }
     }
@@ -151,6 +151,28 @@ router.post(`/uploadapikey`, async (req, res) => {
         result.message = "not_logined";
     }
 
+    res.json(result);
+});
+
+// POST /login/getcharacterserver
+router.post(`/getcharacterserver`, async (req, res) => {
+    let result = {
+        result: false
+    }
+
+    try{
+        let {charactername} = req.body;
+
+        let character_data_url = `http://127.0.0.1:8080/api/v1/maple/characterdata?charactername=${encodeURI(charactername)}`
+        let character_data = JSON.parse(await request.get(character_data_url));
+
+        result.result = true;
+        result.server = character_data.data.character_server_name;
+    }
+    catch(err){
+        console.log(err);
+    }
+    
     res.json(result);
 });
 

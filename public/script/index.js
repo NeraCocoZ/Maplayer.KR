@@ -41,6 +41,7 @@ $(document).ready(() => {
             url: "/login/uploadapikey",
             data: {apikey: $("#apikey").val()},
             success: (result) => {
+                console.log(result);
                 // Upload API Key
                 if(result.result == true){
                     $("#apikey_button").html("API Key 등록 완료.")
@@ -49,8 +50,24 @@ $(document).ready(() => {
                     $("#character_list option").remove();
                     
                     for(let character in result.character_list){
-                        let option = `<option value="${character}">${character_list[character]}</option>`
-                        $("#character_list").append(option);
+                        let character_name = result.character_list[character]
+
+                        $.ajax({
+                            type: "POST",
+                            url: "/login/getcharacterserver",
+                            header: {"Access-Control-Allow-Origin": "*"},
+                            data: {charactername: character_name},
+                            success: (result) => {
+                                let server_name = result.server;
+                                console.log(server_name)
+
+                                let option = `<option value="${character}">[ ${server_name} ] ${character_name}</option>`
+                                $("#character_list").append(option);
+                            },
+                            error: () => {
+                                console.log("error");
+                            }
+                        });
                     }
                 }
             },

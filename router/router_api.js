@@ -45,6 +45,7 @@ router.get(`/${api_version}/maple/union`, async (req, res) => {
         let maple_union_cheerio = cheerio.load(maple_union_html);
 
         let maple_union_level_text = maple_union_cheerio("tr.search_com_chk > td:nth-child(3)").text();
+
         let maple_union_level = Number(maple_union_level_text.replace(",", ""));
 
         result.data = {
@@ -77,12 +78,28 @@ router.get(`/${api_version}/maple/characterdata`, async (req, res) => {
             c: character_name
         }
     };
+
+    let maple_character_data_html = await request(request_option);
+    let maple_character_data_cheerio = cheerio.load(maple_character_data_html);
+
+    let maple_character_data_server_check = maple_character_data_cheerio("tr.search_com_chk").length == 0 ? false : true;
+
+    // If Reboot
+    if(!maple_character_data_server_check){
+        request_option = {
+            url: "https://maplestory.nexon.com/N23Ranking/World/Total",
+            qs: {
+                w: "254",
+                c: character_name
+            }
+        };
+
+        maple_character_data_html = await request(request_option);
+        maple_character_data_cheerio = cheerio.load(maple_character_data_html);
+    }
     
     // Maplestory Union Leve Crawling
     try{
-        let maple_character_data_html = await request(request_option);
-        let maple_character_data_cheerio = cheerio.load(maple_character_data_html);
-
         // Character Server
         let maple_character_server_url = maple_character_data_cheerio("tr.search_com_chk > td.left > dl > dt > a > img").attr("src");
         let maple_character_server_name = server_list_json[maple_character_server_url.replace("https://ssl.nexon.com/s2/game/maplestory/renewal/common/world_icon/icon_", "").replace(".png", "")];
@@ -146,7 +163,7 @@ router.get(`/${api_version}/maple/characterlist`, async (req, res) => {
     // Maplestory get API
     for(let i = 1; i <= 30; i ++){
         // Variable Require
-        let date = new Date();
+        let date = new Date("2022-12-26");
 
         // Set Date
         date.setDate(date.getDate() - i);
@@ -160,7 +177,7 @@ router.get(`/${api_version}/maple/characterlist`, async (req, res) => {
 
         // Request Option
         let request_option = {
-            url: "https://public.api.nexon.com/openapi/maplestory/v1/cube-use-results?count=1000&date=2023-06-29",
+            url: "https://public.api.nexon.com/openapi/maplestory/v1/cube-use-results",
             headers: {
                 Authorization: api_key
             },
