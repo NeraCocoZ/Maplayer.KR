@@ -1,0 +1,18 @@
+/**
+ * File Path: /public/style/
+ * File Name: header.css
+ * 
+ * Author: NeraCocoZ
+ * Email : neracocoz@gmail.com
+ * 
+ * Create Date: 2023-07-10, Mon
+ */
+
+a#nav_a_title, a#nav_a_signin, a#nav_a_signup, a#nav_a_signout, a#nav_a_username {
+    font-family: MaplestoryB;
+}
+
+a#nav_a_signin, a#nav_a_signup,a#nav_a_signout, a#nav_a_username {
+    color: black;
+    text-decoration: none;
+}

@@ -11,7 +11,9 @@
 // Module Require
 const express = require("express"); // Express
 const chalk = require("chalk"); // Chalk # 4.1.2
-const passport = require("passport");
+const path = require("path"); // Path
+const bodyParser = require("body-parser"); // bodyParser
+const session = require("express-session"); // Session
 
 // Utils Module Require
 const utils = require("./utils"); // Utils
@@ -29,16 +31,25 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(session({
+    secure: false,
+    secret: "NeRaCocoZ",
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        secure: false
+    }
+}));
 
 // Server Router Require
-const router_index = require("./router_index"); // Index Router
+const router_index = require("./router/router_index"); // Index Router
+const router_login = require("./router/router_login"); // API Router
 const router_api = require("./router/router_api"); // API Router
 
 // Server Router Use
 app.use("/", router_index);
+app.use("/login", router_login);
 app.use("/api", router_api);
 
 // Server Listen

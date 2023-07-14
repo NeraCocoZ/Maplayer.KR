@@ -20,6 +20,7 @@ let api_version = "v1";
 
 // Metadata Require
 const max_exp_json = JSON.parse(fs.readFileSync("./metadata/max_exp.json"));
+const server_list_json = JSON.parse(fs.readFileSync("./metadata/server_list.json"));
 
 // Router GET
 // GET api/v1/maple/union?charactername=${character_name}
@@ -82,6 +83,10 @@ router.get(`/${api_version}/maple/characterdata`, async (req, res) => {
         let maple_character_data_html = await request(request_option);
         let maple_character_data_cheerio = cheerio.load(maple_character_data_html);
 
+        // Character Server
+        let maple_character_server_url = maple_character_data_cheerio("tr.search_com_chk > td.left > dl > dt > a > img").attr("src");
+        let maple_character_server_name = server_list_json[maple_character_server_url.replace("https://ssl.nexon.com/s2/game/maplestory/renewal/common/world_icon/icon_", "").replace(".png", "")];
+
         // Character Name
         let maple_character_name_text = maple_character_data_cheerio("tr.search_com_chk > td.left > dl > dt > a").text();
 
@@ -107,6 +112,8 @@ router.get(`/${api_version}/maple/characterdata`, async (req, res) => {
         let maple_character_guild_name = maple_character_data_cheerio("tr.search_com_chk > td:nth-child(6)").text();
 
         result.data = {
+            character_server_icon: maple_character_server_url,
+            character_server_name: maple_character_server_name,
             character_name: maple_character_name_text,
             character_class: maple_character_class_text,
             character_level: maple_character_level_text,

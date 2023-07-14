@@ -1,0 +1,18 @@
+/**
+ * File Path: /public/style/
+ * File Name: style.css
+ * 
+ * Author: NeraCocoZ
+ * Email : neracocoz@gmail.com
+ * 
+ * Create Date: 2023-07-10, Mon
+ */
+
+@font-face {
+    font-family: "MaplestoryB";
+    src: url("/font/MaplestoryB.ttf") format("truetype");
+}
+
+body{
+    font-family: MaplestoryB;
+}

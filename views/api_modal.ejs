@@ -1,0 +1,21 @@
+<div class="modal fade" id="api_modal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">API Key & 대표 캐릭터 등록</h5>
+            </div>
+            <div class="modal-body">
+                <p>API Key를 등록후 대표 캐릭터를 설정해주세요.</p>
+                <input id="apikey" class="form-control" name="apikey" type="text" placeholder="API Key" style="width: 100%; margin-top: 1em;">
+                <button id="apikey_button" class="btn btn-outline-primary" type="button" style="width: 100%; margin-top: 1em;">등록</button>
+                <hr>
+                <select id="character_list" class="form-select" disabled>
+                    <option selected>API Key를 등록해주세요.</option>
+                  </select>                  
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" disabled>대표캐릭터 등록</button>
+            </div>
+        </div>
+    </div>
+</div>

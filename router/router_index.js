@@ -13,9 +13,6 @@ const express = require("express"); // Express
 const router = express.Router(); // Express Router
 const fs = require("fs"); // File System
 
-// Utils Module Require
-const utils = require("./utils"); // Utils
-
 // Variable Require
 
 // Router GET
@@ -23,3 +20,5 @@ const utils = require("./utils"); // Utils
 router.get(`/`, (req, res) => {
     res.render("index");
 });
+
+module.exports = router;

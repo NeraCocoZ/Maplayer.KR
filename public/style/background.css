@@ -1,0 +1,34 @@
+div.random_background {
+    position: relative;
+
+    width: 50%;
+    height: 50%;
+}
+
+div.random_background::after {
+    width: 100%;
+    height: 100%;
+    content: "";
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    z-index: -1;
+
+    opacity: 0.5;
+}
+
+/* Background Image 1 */
+#random_background_1::after {
+    background-image: url(../image/background_1.webp);
+}
+
+/* Background Image 2 */
+#random_background_2::after {
+    background-image: url(../image/background_2.webp);
+}
