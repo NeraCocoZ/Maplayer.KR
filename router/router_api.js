@@ -1,218 +1,180 @@
 /**
- * File Path: /router/
- * File Name: router_api.js
+ * 파일 경로: /router
+ * 파일 이름: router_api.js
  * 
- * Author: NeraCocoZ
- * Email : neracocoz@gmail.com
+ * 파일 작성자: NeraCocoZ
+ * 작성자 메일: neracocoz@gmail.com
  * 
- * Create Date: 2023-07-06, Thu
+ * 파일 생성일: 2023-07-16, 일
+ * 
+ * 이 파일은 "코드 정리 및 최적화"가 완료된 파일입니다.
  */
 
-// Module Require
+// 모듈 선언
 const express = require("express"); // Express
 const router = express.Router(); // Express Router
 const request = require("request-promise-native"); // Request-Promise-Native
 const cheerio = require("cheerio"); // Cheerio
 const fs = require("fs"); // File System
 
-// Variable Require
-let api_version = "v1";
+// 변수 선언
+let apiVersion = "v1";
 
-// Metadata Require
-const max_exp_json = JSON.parse(fs.readFileSync("./metadata/max_exp.json"));
-const server_list_json = JSON.parse(fs.readFileSync("./metadata/server_list.json"));
+// 메타데이터 선언
+const maxExp = fs.readFileSync("./metadata/max_exp.json");
+const serverList = fs.readFileSync("./metadata/server_list.json");
 
-// Router GET
-// GET api/v1/maple/union?charactername=${character_name}
-router.get(`/${api_version}/maple/union`, async (req, res) => {
-    // Variable Require
-    let character_name = req.query.charactername;
-    let result = {
-        result: true
+const maxExpJSON = JSON.parse(maxExp);
+const serverListJSON = JSON.parse(serverList);
+
+// GET 호출
+// GET api/maplestory/{apiVersion}/characterData?characterName={characterName}
+router.get(`/maplestory/${apiVersion}/characterData`, async (req, res) => {
+    // 변수 선언
+    let {characterName} = req.query;
+    let result = {result: true};
+
+    // Request 설정
+    let requestUrl = "https://maplestory.nexon.com/N23Ranking/World/Total";
+    let requestOption = {
+        url: requestUrl,
+        qs: {c: characterName}
+    };
+
+    // Request 요청
+    let characterDataHtml = await request(requestOption);
+    let $ = cheerio.load(characterDataHtml);
+
+    // 서버 체크
+    let serverCheck = $("tr.search_com_chk").length == 0 ? false : true;
+
+    // 리부트 서버 일때
+    if(!serverCheck){
+        // Request 설정
+        requestOption = {
+            url: requestUrl,
+            qs: {w: "254", c: characterName}
+        };
+
+        // Request 요청
+        characterDataHtml = await request(requestOption);
+        $ = cheerio.load(characterDataHtml);
     }
 
-    // Request Option
-    let request_option = {
-        url: "https://maplestory.nexon.com/N23Ranking/World/Union",
-        qs: {
-            c: character_name
-        }
-    };
-    
-    // Maplestory Union Leve Crawling
+    // 메이플스토리 캐릭터 데이터 크롤링
     try{
-        let maple_union_html = await request(request_option);
-        let maple_union_cheerio = cheerio.load(maple_union_html);
+        // 캐릭터 서버
+        let characterServerIcon = $("tr.search_com_chk > td.left > dl > dt > a > img").attr("src");
+        let characterServerCode = characterServerIcon.replace("https://ssl.nexon.com/s2/game/maplestory/renewal/common/world_icon/icon_", "").replace(".png", "");
+        let characterServerName = serverListJSON[characterServerCode];
 
-        let maple_union_level_text = maple_union_cheerio("tr.search_com_chk > td:nth-child(3)").text();
+        // 캐릭터 이름
+        let characterName = $("tr.search_com_chk > td.left > dl > dt > a").text();
 
-        let maple_union_level = Number(maple_union_level_text.replace(",", ""));
+        // 캐릭터 직업
+        let characterClass = $("tr.search_com_chk > td.left > dl > dd").text();
 
+        // 캐릭터 레벨
+        let characterLevel = $("tr.search_com_chk > td:nth-child(3)").text();
+
+        // 캐릭터 경험치
+        let characterExpString = $("tr.search_com_chk > td:nth-child(4)").text();
+        let characterExp = Number(characterExpString.replace(/,/g, ""));
+
+        // 캐릭터 최대 경험치
+        let characterMaxExp = maxExpJSON[characterLevel.replace("Lv.", "")];
+
+        // 캐릭터 경험치 퍼센트
+        let characterExpPersent = (characterExp / characterMaxExp * 100).toFixed(3);
+
+        // 캐릭터 인기도
+        let characterPopString = $("tr.search_com_chk > td:nth-child(5)").text();
+        let charcterPop = Number(characterPopString.replace(/,/g, ""))
+
+        // 캐릭터 길드
+        let characterGuild = $("tr.search_com_chk > td:nth-child(6)").text();
+
+        // 결과
         result.data = {
-            character_name: character_name,
-            union_level: maple_union_level
+            characterServerIcon: characterServerIcon,
+            characterServerName: characterServerName,
+            characterName: characterName,
+            characterClass: characterClass,
+            characterLevel: characterLevel,
+            characterExp: characterExp,
+            characterMaxExp: characterMaxExp,
+            characterExpPersent: characterExpPersent,
+            characterPop: characterPop,
+            characterGuild: characterGuild
         };
     }
-    catch(err){
+    // 오류 발생시
+    catch(error){
         result.result = false;
-        result.message = "월드에서 가장 높은 레벨의 캐릭터의 이름을 입력해주세요."
-        
-        console.error(err)
+        result.message = "캐릭터를 찾을 수 없습니다.";
+        result.err = error;
     }
 
+    // 데이터 전송
     res.json(result);
 });
 
-// GET api/v1/maple/characterdata?charactername=${character_name}
-router.get(`/${api_version}/maple/characterdata`, async (req, res) => {
-    // Variable Require
-    let character_name = req.query.charactername;
-    let result = {
-        result: true
-    }
+// GET api/maplestory/{apiVersion}/characterList?apiKey={apiKey}
+router.get(`/maplestory/{apiVersion}/characterList`, async (req, res) => {
+    // 변수 선언
+    let {apiKey} = req.query;
+    let result = {result: true};
+    let characterList = [];
 
-    // Request Option
-    let request_option = {
-        url: "https://maplestory.nexon.com/N23Ranking/World/Total",
-        qs: {
-            c: character_name
-        }
-    };
-
-    let maple_character_data_html = await request(request_option);
-    let maple_character_data_cheerio = cheerio.load(maple_character_data_html);
-
-    let maple_character_data_server_check = maple_character_data_cheerio("tr.search_com_chk").length == 0 ? false : true;
-
-    // If Reboot
-    if(!maple_character_data_server_check){
-        request_option = {
-            url: "https://maplestory.nexon.com/N23Ranking/World/Total",
-            qs: {
-                w: "254",
-                c: character_name
-            }
-        };
-
-        maple_character_data_html = await request(request_option);
-        maple_character_data_cheerio = cheerio.load(maple_character_data_html);
-    }
-    
-    // Maplestory Union Leve Crawling
+    // 메이플스토리 API 받아오기
     try{
-        // Character Server
-        let maple_character_server_url = maple_character_data_cheerio("tr.search_com_chk > td.left > dl > dt > a > img").attr("src");
-        let maple_character_server_name = server_list_json[maple_character_server_url.replace("https://ssl.nexon.com/s2/game/maplestory/renewal/common/world_icon/icon_", "").replace(".png", "")];
-
-        // Character Name
-        let maple_character_name_text = maple_character_data_cheerio("tr.search_com_chk > td.left > dl > dt > a").text();
-
-        // Character Class
-        let maple_character_class_text = maple_character_data_cheerio("tr.search_com_chk > td.left > dl > dd").text();
-
-        // Character Level
-        let maple_character_level_text = maple_character_data_cheerio("tr.search_com_chk > td:nth-child(3)").text();
-
-        // Character Exp
-        let maple_character_exp_text = maple_character_data_cheerio("tr.search_com_chk > td:nth-child(4)").text();
-        let maple_character_exp_number = Number(maple_character_exp_text.replace(/,/g, ""));
-
-        // Character Exp Persent
-        let maple_character_max_exp = max_exp_json[maple_character_level_text.replace("Lv.", "")];
-        let maple_character_exp_persent = (maple_character_exp_number / maple_character_max_exp * 100).toFixed(3);
-
-        // Character Pop
-        let maple_character_pop_text = maple_character_data_cheerio("tr.search_com_chk > td:nth-child(5)").text();
-        let maple_character_pop_number = Number(maple_character_pop_text.replace(/,/g, ""))
-
-        // Character Guild Name
-        let maple_character_guild_name = maple_character_data_cheerio("tr.search_com_chk > td:nth-child(6)").text();
-
-        result.data = {
-            character_server_icon: maple_character_server_url,
-            character_server_name: maple_character_server_name,
-            character_name: maple_character_name_text,
-            character_class: maple_character_class_text,
-            character_level: maple_character_level_text,
-            character_exp: maple_character_exp_number,
-            character_max_exp: maple_character_max_exp,
-            character_exp_persent: maple_character_exp_persent,
-            character_pop: maple_character_pop_number,
-            character_guild_name: maple_character_guild_name
-        };
-    }
-    catch(err){
-        result.result = false;
-        result.message = "캐릭터를 찾을 수 없습니다."
-        
-        console.error(err)
-    }
-
-    res.json(result);
-});
-
-// GET api/v1/maple/characterlist?apikey=${api_key}
-router.get(`/${api_version}/maple/characterlist`, async (req, res) => {
-    // Variable Require
-    let api_key = req.query.apikey;
-    let result = {
-        result: true
-    }
-    let character_list = [];
-
-    // Maplestory get API
-    for(let i = 1; i <= 30; i ++){
-        // Variable Require
-        let date = new Date("2022-12-26");
-
-        // Set Date
-        date.setDate(date.getDate() - i);
-
-        // Get Date
-        let year = date.getFullYear();
-        let month = (date.getMonth() + 1).toString().padStart(2, "0");
-        let day = date.getDate().toString().padStart(2, "0");
-
-        let date_string = `${year}-${month}-${day}`;
-
-        // Request Option
-        let request_option = {
-            url: "https://public.api.nexon.com/openapi/maplestory/v1/cube-use-results",
-            headers: {
-                Authorization: api_key
-            },
-            qs: {
-                count: 1000,
-                date: date_string
-            }
-        };
-
-        // Maplestory Character List Get API
-        try{
-            let maple_characterlist_json = JSON.parse(await request(request_option));
-            let maple_characterlist_cube_histories = maple_characterlist_json.cube_histories;
-            
-            if(maple_characterlist_cube_histories.length != 0){
-                for(let data in maple_characterlist_cube_histories){
-                    let maple_characterlist_charactername = maple_characterlist_cube_histories[data].character_name;
-
-                    if(character_list.indexOf(maple_characterlist_charactername) == -1){
-                        character_list.push(maple_characterlist_charactername);
-                    }
+        for(let i = 1; i <= 30; i ++){
+            // 변수 선언
+            let date = new Date();
+            date.setDate(date.getDate() - i);
+    
+            let dateYear = date.getFullYear();
+            let dateMonth = (date.getMonth() + 1).toString().padStart(2, "0");
+            let dateDay = date.getDate().toString().padStart(2, "0");
+    
+            let dateString = `${dateYear}-${dateMonth}-${dateDay}`;
+    
+            // Request 설정
+            let requestUrl = "https://public.api.nexon.com/openapi/maplestory/v1/cube-use-results";
+            let requestOption = {
+                url: requestUrl,
+                headers: {Authorization: apiKey},
+                qs: {count: 1000, date: dateString}
+            };
+    
+            // Request 요청
+            let characterListRequest = await request(requestOption);
+            let characterListJSON = JSON.parse(characterListRequest);
+            let characterListCubeHistories = characterListJSON["cube_histories"];
+    
+            // 큐브 히스토리 결과가 있으면
+            if(characterListCubeHistories.length != 0){
+                for(let data in characterListCubeHistories){
+                    let characterName = characterListCubeHistories[data]["character_name"];
+    
+                    if(characterList.indexOf(characterName) == -1)
+                        characterList.push(characterName);
                 }
             }
+        }
 
-            result.characterlist = character_list;
-        }
-        catch(err){
-            result.result = false;
-            result.message = "알수없는 오류가 발생했습니다."
-            
-            console.error(err)
-        }
+        result.characterList = characterList;
+    }
+    // 오류 발생시
+    catch(error){
+        result.result = false;
+        result.message = "알수없는 오류가 발생했습니다.";
+        result.err = error;
     }
 
+    // 데이터 전송
     res.json(result);
 });
 
+// 모듈 내보내기
 module.exports = router;
