@@ -1,54 +1,50 @@
 <!--
-    File Path: /views/
-    File Name: index.ejs
+    파일 경로: /router
+    파일 이름: router_api.js
 
-    Author: NeraCocoZ
-    Email : neracocoz@gmail.com
+    파일 작성자: NeraCocoZ
+    작성자 메일: neracocoz@gmail.com
 
-    Create Date: 2023-07-09, Sun
+    파일 생성일: 2023-07-16, 일
+
+    이 파일은 "코드 정리 및 최적화"가 완료된 파일입니다.
 -->
 <!DOCTYPE html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Maplayer.KR</title>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-widthm, initial-scale=1.0">
+        <title>Maplayer.KR</title>
 
-    <!-- Script -->
-    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="./script/index.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+        <link rel="stylesheet" href="./style/font.css">
+        <link rel="stylesheet" href="./style/style.css">
+        <link rel="stylesheet" href="./style/background.css">
+    </head>
+    <body>
+        <%- include("./Etc/header.ejs") %>
+        <%- include("./Etc/apiModal.ejs") %>
 
-    <!-- Style -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="./style/style.css">
-    <link rel="stylesheet" href="./style/background.css">
-</head>
-<body>
-    <!-- Header Navbar -->
-    <%- include("./header.ejs") %>
-
-    <!-- API Key Modal -->
-    <%- include("./api_modal.ejs") %>
-
-    <div class="container random_background" id="random_background" style="height: 400px;">
-		<div id="subtitle" class="d-flex justify-content-center">
-			<p id="subtitle" style="font-family: MaplestoryB; font-size: 15px; margin-top: 1em;">메이플레이어</p>
-		</div>
-		<div id="title" class="d-flex justify-content-center">
-			<p id="title" style="font-family: MaplestoryB; font-size: 32px;">Maplayer.KR</p>
-		</div>
-		
-        <!--<form method="GET" action="/charactersearch">-->
-            <div id="usersearch" class="d-flex justify-content-center">
-                <input id="usersearch" class="form-control" name="charactername" type="text" placeholder="캐릭터 닉네임을 입력해주세요." style="width: 50%; margin-top: 1em;">
+        <div class="container randomBackground" id="randomBackground">
+            <div class="d-flex justify-content-center">
+                <p id="subTitle">메이플레이어</p>
             </div>
-            <div id="usersearch_button" class="d-flex justify-content-center">
-                <button id="usersearch_button" class="btn btn-outline-primary" type="submit" style="width: 50%; margin-top: 1em;">검색</button>
+            <div class="d-flex justify-content-center">
+                <p id="title">Maplayer.KR</p>
             </div>
-        <!--</form>-->
-    </div>
-</body>
+
+            <div class="d-flex justify-content-center">
+                <input class="form-control" id="characterName" type="text" placeholder="캐릭터 닉네임을 입력해주세요.">
+            </div>
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-outline-primary" id="userSearchButton" type="submit">검색</button>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="./script/index.js"></script>
+    </body>
 </html>
