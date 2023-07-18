@@ -1,197 +1,89 @@
 /**
- * File Path: /router/
- * File Name: router_login.js
+ * 파일 경로: /router
+ * 파일 이름: router_login.js
  * 
- * Author: NeraCocoZ
- * Email : neracocoz@gmail.com
+ * 파일 작성자: NeraCocoZ
+ * 작성자 메일: neracocoz@gmail.com
  * 
- * Create Date: 2023-07-09, Sun
+ * 파일 생성일: 2023-07-17, 월
+ * 
+ * 이 파일은 "코드 정리 및 최적화"가 완료된 파일입니다.
  */
 
-// Module Require
+// 모듈 선언
 const express = require("express"); // Express
 const router = express.Router(); // Express Router
 const fs = require("fs"); // File System
 const crypto = require("crypto"); // Crypto
-const request = require("request-promise-native");
+const request = require("request-promise-native"); // Request-Promise-Native
 
-// Utils Module Require
-const utils = require("../utils"); // Utils
+// Utils 모듈 선언
+const utils = require("../utils");
 
-// Variable Require
+// 변수 선언
 
-// Router GET
+// GET 호출
 // GET /login
 router.get(`/`, (req, res) => {
-    // Check session
-    let check_login = req.session.login;
+    // 로그인 세션 체크
+    let {checkLogin} = req.session;
 
-    if(check_login){
+    if(checkLogin)
         res.redirect("/");
-    }
+
     else
         res.render("login");
 });
 
-// Router POST
-// POST /login
-router.post(`/`, (req, res) => {
-    // Variable Require
-    let userdata_path = `./data/userdata`;
-    let {username, password} = req.body;
-    let result = false;
+// POST 호출
+// POST /login/login
+router.post(`/login`, (req, res) => {
+    // 변수 선언
+    let userDataPath = `./data/userdata`;
+    let {userName, passWord} = req.body;
+    let loginResult = false;
 
-    // Check username
-    let userlist = fs.readdirSync(userdata_path);
+    // 사용자 이름 확인
+    let userList = fs.readdirSync(userDataPath);
 
-    for(let user in userlist){
-        // Find username
-        if(userlist[user] == `${username}.json`){
-            // Check password
-            let userdata = JSON.parse(fs.readFileSync(`${userdata_path}/${username}.json`, "utf-8"));
+    for(let user in userList){
+        // 사용자 이름 찾기
+        if(userList[user] == `${userName}.json`){
+            // 비밀번호 확인
+            let userDataFile = fs.readFileSync(`${userDataPath}/${userName}.json`, "utf-8");
+            let userDataJSON = JSON.parse(userDataFile);
 
-            // Login Success
-            if(userdata.password == password){
-                // Create Token
-                let token = crypto.randomBytes(64).toString("base64");
-
-                // Update Token
-                userdata.login_token = token;
-
-                // Save Token
-                fs.writeFileSync(`${userdata_path}/${username}.json`, JSON.stringify(userdata, null, 4), "utf-8");
-
-                // Upload Token List
-                let token_list = JSON.parse(fs.readFileSync(`./data/token/token_list.json`, "utf-8"));
-                token_list[username] = token;
-                fs.writeFileSync(`./data/token/token_list.json`, JSON.stringify(token_list, null, 4), "utf-8")
-
-                req.session.login = username;
-                res.cookie("login", token);
-                result = true;
+            // 로그인 성공시
+            if(userDataJSON.passWord == passWord){
+                req.session.checkLogin = userName;
+                loginResult = true;
                 break;
             }
         }
     }
 
-    if(result) res.redirect("/");
-    else res.redirect("/login");
-});
-
-// POST /login/getusername
-router.post(`/getusername`, (req, res) => {
-    let result = {
-        result: false
-    }
-
-    // Check Session
-    let login_session = req.session.login;
-
-    if(login_session != undefined){
-        result.result = true;
-        result.username = login_session;
-    }
-
-    res.json(result);
-});
-
-// POST /login/checkapikey
-router.post(`/checkapikey`, (req, res) => {
-    let result = {
-        result: false
-    }
-
-    // Check Session
-    let login_session = req.session.login;
-
-    if(login_session != undefined){
-        let userdata = JSON.parse(fs.readFileSync(`./data/userdata/${login_session}.json`, "utf-8"));
-
-        // Check API Key
-        if(userdata.apikey == undefined){
-            result.message = "apikey_undefined";
-        }
-        else{
-            result.result = true;
-        }
-    }
-    else{
-        result.message = "not_logined";
-    }
-
-    res.json(result);
-});
-
-// POST /login/uploadapikey
-router.post(`/uploadapikey`, async (req, res) => {
-    let result = {
-        result: false
-    }
-
-    // Check Session
-    let login_session = req.session.login;
-
-    if(login_session != undefined){
-        // Check API Key
-        let {apikey} = req.body;
-        let apikey_api_url = `http://127.0.0.1:8080/api/v1/maple/characterlist?apikey=${apikey}`
-        let apikey_check = JSON.parse(await request.get(apikey_api_url));
-
-        if(apikey_check.result == true){
-            result.result = true;
-            result.character_list = apikey_check.characterlist;
-
-            // Upload API Key
-            let userdata = JSON.parse(fs.readFileSync(`./data/userdata/${login_session}.json`, "utf-8"));
-            userdata.temp_apikey = apikey;
-            fs.writeFileSync(`./data/userdata/${login_session}.json`, JSON.stringify(userdata, null, 4), "utf-8");
-        }
-    }
-    else{
-        result.message = "not_logined";
-    }
-
-    res.json(result);
-});
-
-// POST /login/getcharacterserver
-router.post(`/getcharacterserver`, async (req, res) => {
-    let result = {
-        result: false
-    }
-
-    try{
-        let {charactername} = req.body;
-
-        let character_data_url = `http://127.0.0.1:8080/api/v1/maple/characterdata?charactername=${encodeURI(charactername)}`
-        let character_data = JSON.parse(await request.get(character_data_url));
-
-        result.result = true;
-        result.server = character_data.data.character_server_name;
-    }
-    catch(err){
-        console.log(err);
-    }
-    
-    res.json(result);
+    if(loginResult)
+        res.redirect("/");
+    else
+        res.redirect("/login");
 });
 
 // POST /login/logout
 router.post(`/logout`, (req, res) => {
-    let result = {
-        result: false
-    }
+    // 변수 선언
+    let result = {result: false};
 
-    // Check Session
-    let login_session = req.session.login;
+    // 로그인 세션 확인
+    let {checkLogin} = req.session;
 
-    if(login_session != undefined){
-        delete req.session.login;
+    if(checkLogin){
+        delete req.session.checkLogin;
         result.result = true;
-    }
+    };
 
+    // 데이터 전송
     res.json(result);
-});
+})
 
-
+// 모듈 내보내기
 module.exports = router;
