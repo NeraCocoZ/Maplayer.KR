@@ -14,7 +14,7 @@
 const express = require("express"); // Express
 const router = express.Router(); // Express Router
 const fs = require("fs"); // File System
-const { request } = require("http");
+const request = require("request-promise-native");
 
 // 변수 선언
 
@@ -67,8 +67,8 @@ router.post(`/checkApiKey`, (req, res) => {
     res.json(result);
 });
 
-// POST /checkApiKey
-router.post(`/checkApiKey`, async(req, res) => {
+// POST /sendApiKey
+router.post(`/sendApiKey`, async(req, res) => {
     // 변수 선언
     let result = {result: false};
 
@@ -78,7 +78,7 @@ router.post(`/checkApiKey`, async(req, res) => {
     if(checkLogin){
         // APIKEY 체크
         let {apiKey} = req.body;
-        let apiKeyUrl = `http://127.0.0.1:8080/api/v1/maple/characterlist?apikey=${apikey}`
+        let apiKeyUrl = `http://127.0.0.1:8080/api/maplestory/v1/characterList?apiKey=${apiKey}`
         let apiKeyData = await request.get(apiKeyUrl);
         let apiKeyJSON = JSON.parse(apiKeyData);
 
@@ -99,35 +99,45 @@ router.post(`/getCharacterServer`, async(req, res) => {
     // 변수 선언
     let result = {result: false};
     let characterServerList = [];
+    let characterServerIconList = [];
 
     try{
         // 캐릭터 서버 가져오기
-        let {characterList} = req.body;
+        let characterList = req.body["characterList[]"];
+
+        // 배열 체크
+        if(!Array.isArray(characterList)){
+            let tempCharacterName = characterList;
+            characterList = new Array();
+            characterList.push(tempCharacterName);
+        }
 
         for(let characterName in characterList){
             let characterNameEncode = encodeURI(characterList[characterName])
-            let characterDataUrl = `http://127.0.0.1:8080/api/v1/maple/characterdata?charactername=${characterNameEncode}`;
+            let characterDataUrl = `http://127.0.0.1:8080/api/maplestory/v1/characterData?characterName=${characterNameEncode}`;
             let characterData = await request.get(characterDataUrl);
             let characterDataJSON = JSON.parse(characterData);
 
-            characterListArray.push(characterDataJSON["data"]["characterServerName"]);
+            characterServerList.push(characterDataJSON["data"]["characterServerName"]);
+            characterServerIconList.push(characterDataJSON["data"]["characterServerIcon"]);
         }
 
         // 캐릭터 서버 배열 확인
         if(characterServerList.length == characterList.length){
             result.result = true;
             result.characterServerList = characterServerList;
+            result.characterServerIconList = characterServerIconList;
         }
         else{
             result.errorMessage = "알수없는 오류가 발생했습니다.";
-            result.error = err;
+            result.error = "배열의 길이가 다릅니다."
         }
     }
     catch(err){
         result.errorMessage = "알수없는 오류가 발생했습니다.";
         result.error = err;
     }
-    
+
     // 데이터 전송
     res.json(result);
 });

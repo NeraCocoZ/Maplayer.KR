@@ -1,62 +1,59 @@
 /**
- * File Path: /public/script/
- * File Name: header.js
+ * 파일 경로: /public/script
+ * 파일 이름: header.js
  * 
- * Author: NeraCocoZ
- * Email : neracocoz@gmail.com
+ * 파일 작성자: NeraCocoZ
+ * 작성자 메일: neracocoz@gmail.com
  * 
- * Create Date: 2023-07-13, Thu
+ * 파일 생성일: 2023-07-19, 수
+ * 
+ * 이 파일은 "코드 정리 및 최적화"가 완료된 파일입니다.
  */
 
 $(document).ready(() => {
-    // Check login
+    // 로그인 체크
     $.ajax({
         type: "POST",
-        url: "/login/getusername",
+        url: "/getUserName",
         success: (result) => {
-            // Logined
-            if(result.result == true){
-                // Edit Navbar
-                $("a#nav_a_signin").hide();
-                $("a#nav_a_signup").hide();
+            // 로그인 되있으면
+            if(result.result){
+                // 변수 선언
+                let userName = result.userName;
 
-                $("a#nav_a_signout").show();
-                $("a#nav_a_username").show();
+                // 헤더 수정
+                $("#navLogin").hide();
+                $("#navRegister").hide();
 
-                $("a#nav_a_username").html(`<i class="fa-solid fa-user"></i> ${result.username}`);
+                $("#navLogout").show();
+                $("#navMypage").show();
+
+                $("#navUsername").html(userName);
             }
-
-            // Not Logined
+            // 로그인이 안되있으면
             else{
-                // Edit Navbar
-                $("a#nav_a_signin").show();
-                $("a#nav_a_signup").show();
+                // 헤더 수정
+                $("#navLogin").show();
+                $("#navRegister").show();
 
-                $("a#nav_a_signout").hide();
-                $("a#nav_a_username").hide();
+                $("#navLogout").hide();
+                $("#navMypage").hide();
 
-                $("a#nav_a_username").html("username");
+                $("#navUsername").html(`userName`);
             }
-        },
-        error: () => {
-            console.log("error");
         }
     });
-})
 
-// Logout
-function logout(){
-    $.ajax({
-        type: "POST",
-        url: "/login/logout",
-        success: (result) => {
-            // Logined
-            if(result.result == true){
-                window.location.href = "/";
+    // 로그아웃
+    function logout(){
+        $.ajax({
+            type: "POST",
+            url: "/login/logout",
+            success: (result) => {
+                // 로그아웃 성공
+                if(result.result)
+                    window.location.href = "/";
             }
-        },
-        error: () => {
-            console.log("error");
-        }
-    });
-}
+        });
+    }
+});

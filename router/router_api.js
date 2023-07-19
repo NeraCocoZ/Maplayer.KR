@@ -89,7 +89,7 @@ router.get(`/maplestory/${apiVersion}/characterData`, async (req, res) => {
 
         // 캐릭터 인기도
         let characterPopString = $("tr.search_com_chk > td:nth-child(5)").text();
-        let charcterPop = Number(characterPopString.replace(/,/g, ""))
+        let characterPop = Number(characterPopString.replace(/,/g, ""))
 
         // 캐릭터 길드
         let characterGuild = $("tr.search_com_chk > td:nth-child(6)").text();
@@ -113,6 +113,7 @@ router.get(`/maplestory/${apiVersion}/characterData`, async (req, res) => {
         result.result = false;
         result.message = "캐릭터를 찾을 수 없습니다.";
         result.err = error;
+        console.error(error)
     }
 
     // 데이터 전송
@@ -120,7 +121,7 @@ router.get(`/maplestory/${apiVersion}/characterData`, async (req, res) => {
 });
 
 // GET api/maplestory/{apiVersion}/characterList?apiKey={apiKey}
-router.get(`/maplestory/{apiVersion}/characterList`, async (req, res) => {
+router.get(`/maplestory/${apiVersion}/characterList`, async (req, res) => {
     // 변수 선언
     let {apiKey} = req.query;
     let result = {result: true};
@@ -162,7 +163,11 @@ router.get(`/maplestory/{apiVersion}/characterList`, async (req, res) => {
                 }
             }
         }
-
+        characterList.push("세작나");
+        characterList.push("문별이바퍼");
+        characterList.push("껀호");
+        characterList.push("튀잉");
+        characterList.push("길냥이콜렉터");
         result.characterList = characterList;
     }
     // 오류 발생시

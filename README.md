@@ -21,3 +21,8 @@
   * /views/index.ejs 수정 완료.
   * /public/style/font.css 추가 완료.
   * /public/style/index.css 수정 완료. (기존 background.css 통합)
+
+## 2023-07-19 - 코드 정리 및 최적화 4일차.
+  * /views/login.ejs 수정 완료.
+  * /public/script/header.js 수정 완료.
+  

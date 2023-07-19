@@ -1,82 +1,81 @@
 /**
- * File Path: /public/script/
- * File Name: index.css
+ * 파일 경로: /public/script
+ * 파일 이름: index.js
  * 
- * Author: NeraCocoZ
- * Email : neracocoz@gmail.com
+ * 파일 작성자: NeraCocoZ
+ * 작성자 메일: neracocoz@gmail.com
  * 
- * Create Date: 2023-07-10, Mon
+ * 파일 생성일: 2023-07-19, 수
+ * 
+ * 이 파일은 "코드 정리 및 최적화"가 완료된 파일입니다.
  */
 
-// Variable Require
-
 $(document).ready(() => {
-    // Random Background
-    let random_background = Math.floor(Math.random() * (2 - 1 + 1)) + 1;
-    $("#random_background").attr("id", `random_background_${random_background}`);
+    // 랜덤 배경화면
+    let randomBackground = Math.floor(Math.random() * 2) + 1;
+    $("#randomBackground").attr("id", `randomBackground${randomBackground}`);
 
-    // Check API Key
+    // API KEY 확인
     $.ajax({
         type: "POST",
-        url: "/login/checkapikey",
+        url: "/checkApiKey",
         success: (result) => {
-            // Check API Key
-            if(result.result == false){
-                if(result.message == "apikey_undefined"){
-                    $('#api_modal').modal("show");
-                }
-
-                // Check API Key
+            // API KEY가 없다면
+            if(!result.result){
+                if(result.errorMessage == "apikey")
+                    $("#apiModal").modal("show");
             }
-        },
-        error: () => {
-            console.log("error");
         }
     });
 
-    // Upload API Key
-    $("#apikey_button").click(() => {
+    // API KEY 등록 버튼 클릭시
+    $("#apiKeyButton").click(() => {
+        console.log("A");
+        // 변수 선언
+        let apiKey = $("#apiKey").val();
+
+        // API KEY 체크 및 캐릭터 목록 불러오기
         $.ajax({
             type: "POST",
-            url: "/login/uploadapikey",
-            data: {apikey: $("#apikey").val()},
+            url: "/sendApiKey",
+            data: {apiKey: apiKey},
             success: (result) => {
-                console.log(result);
-                // Upload API Key
-                if(result.result == true){
-                    $("#apikey_button").html("API Key 등록 완료.")
-                    $("#character_list").prop("disabled", false);
+                // API KEY 체크 성공
+                if(result.result){
+                    // 변수 선언
+                    let characterList = result.characterList;
 
-                    $("#character_list option").remove();
-                    
-                    for(let character in result.character_list){
-                        let character_name = result.character_list[character]
+                    // 캐릭터 이름 및 서버 불러오기
+                    $("#apiKeyButton").html("API Key 체크 성공.");
+                    $("#characterList").prop("disabled", false);
+                    $("#characterList option").remove();
 
-                        $.ajax({
-                            type: "POST",
-                            url: "/login/getcharacterserver",
-                            header: {"Access-Control-Allow-Origin": "*"},
-                            data: {charactername: character_name},
-                            success: (result) => {
-                                let server_name = result.server;
-                                console.log(server_name)
+                    $.ajax({
+                        type: "POST",
+                        url: "/getCharacterServer",
+                        header: {"Access-Control-Allow-Origin": "*"},
+                        data: {characterList: characterList},
+                        success: (result) => {
+                            // 변수 선언
+                            let characterServerList = result.characterServerList;
+                            let characterServerIconList = result.characterServerIconList;
 
-                                let option = `<option value="${character}">[ ${server_name} ] ${character_name}</option>`
-                                $("#character_list").append(option);
-                            },
-                            error: () => {
-                                console.log("error");
+                            for(let character in characterList){
+                                let characterName = characterList[character];
+                                let characterServer = characterServerList[character];
+                                let characterServerIcon = characterServerIconList[character];
+
+                                let option = `<option value="${character}">[ <img src="${characterServerIcon}">${characterServer} ] ${characterName}</option>`;
+                                $("#characterList").append(option);
                             }
-                        });
-                    }
+                        }
+                    })
                 }
             },
-            error: () => {
-                console.log("error");
-            },
             beforeSend: () => {
-                $("#apikey_button").prop("disabled", true);
-                $("#apikey_button").html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <span class="sr-only">불러오는중...</span>`)
+                // 로딩
+                $("#apiKeyButton").prop("disabled", true);
+                $("#apiKeyButton").html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> <span class="sr-only">불러오는중...</span>`)
             }
         });
     });

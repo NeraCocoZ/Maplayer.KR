@@ -52,11 +52,13 @@ router.post(`/login`, (req, res) => {
             // 비밀번호 확인
             let userDataFile = fs.readFileSync(`${userDataPath}/${userName}.json`, "utf-8");
             let userDataJSON = JSON.parse(userDataFile);
+            console.log(userDataJSON)
 
             // 로그인 성공시
             if(userDataJSON.passWord == passWord){
                 req.session.checkLogin = userName;
                 loginResult = true;
+                utils.log(`로그인 성공! 아이디: ${userName}`);
                 break;
             }
         }
