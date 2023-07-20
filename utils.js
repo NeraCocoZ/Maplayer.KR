@@ -1,38 +1,50 @@
 /**
- * File Path: /
- * File Name: utils.js
+ * 파일 경로: /
+ * 파일 이름: utils.js
  * 
- * Author: NeraCocoZ
- * Email : neracocoz@gmail.com
+ * 파일 작성자: NeraCocoZ
+ * 작성자 메일: neracocoz@gmail.com
  * 
- * Create Date: 2023-07-06, Thu
+ * 파일 생성일: 2023-07-20, 목
+ * 
+ * 이 파일은 "코드 정리 및 최적화"가 완료된 파일입니다.
  */
 
-// Module Require
-const chalk = require("chalk"); // Chalk # 4.1.2
-const fs = require("fs"); // File System
+// 모듈 선언
+const chalk = require("chalk"); // Chalk@4.1.2
+const mysql = require("mysql2/promise"); // MySQL2
 
-/**
- * Colorful log message.
- * @param {string} message message text
- */
-exports.log = function(message){
+// 상수 선언
+const dbConfig = {
+    "host": "db.rebooter.kr",
+    "port": 3306,
+    "user": "navylimes",
+    "password": "parkseahaun2001!",
+    "database": "navylimes",
+    "connectionLimit": 1000
+}
+
+// 변수 선언
+let pool = mysql.createPool(dbConfig);
+
+// 함수 선언
+// utils.log - 로그를 작성합니다.
+exports.log = (message) => {
     console.log(chalk.bgWhiteBright(`${chalk.black(`[ ${chalk.magenta("Server")} ] ${message}`)}`));
 }
 
-/**
- * User login token check.
- * @param {string} token user login token
- * @returns username or false
- */
-exports.readToken = function(token){
-    // Token List
-    let token_list = JSON.parse(fs.readFileSync(`./data/token/token_list.json`, "utf-8"));
+// utils.sendQuery - SQL을 보내 값을 받아옵니다.
+exports.sendQuery = async (SQL) => {
+    try{
+        let conn = await pool.getConnection(async conn => conn);
+        let [rows] = await conn.query(SQL);
 
-    for(key in token_list){
-        if(token_list[key] == token)
-            return key;
+        conn.release();
+
+        return rows;
     }
-
-    return false;
+    catch(error){
+        console.log(error);
+        return 0;
+    }
 }

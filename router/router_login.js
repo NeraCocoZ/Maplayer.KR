@@ -37,30 +37,27 @@ router.get(`/`, (req, res) => {
 
 // POST 호출
 // POST /login/login
-router.post(`/login`, (req, res) => {
+router.post(`/login`, async (req, res) => {
     // 변수 선언
-    let userDataPath = `./data/userdata`;
     let {userName, passWord} = req.body;
     let loginResult = false;
 
     // 사용자 이름 확인
-    let userList = fs.readdirSync(userDataPath);
+    let sqlUserName = await utils.sendQuery(`SELECT userName FROM MAPLAYERKR_USER_TB WHERE userName = "${userName}"`);
+    let checkUserName = sqlUserName.length != 0 ? true : false;
 
-    for(let user in userList){
-        // 사용자 이름 찾기
-        if(userList[user] == `${userName}.json`){
-            // 비밀번호 확인
-            let userDataFile = fs.readFileSync(`${userDataPath}/${userName}.json`, "utf-8");
-            let userDataJSON = JSON.parse(userDataFile);
-            console.log(userDataJSON)
+    if(checkUserName){
+        // 비밀번호 확인
+        let sqlPassWord = await utils.sendQuery(`SELECT passWordKey, passWordSalt FROM MAPLAYERKR_USER_TB WHERE userName = "${userName}"`);
+        let {passWordKey, passWordSalt} = sqlPassWord[0];
 
-            // 로그인 성공시
-            if(userDataJSON.passWord == passWord){
-                req.session.checkLogin = userName;
-                loginResult = true;
-                utils.log(`로그인 성공! 아이디: ${userName}`);
-                break;
-            }
+        let hashedPassWord = crypto.pbkdf2Sync(passWord, passWordSalt, 154621, 64, "SHA512").toString("base64");
+
+        if(hashedPassWord == passWordKey){
+            // 로그인 성공
+            req.session.checkLogin = userName;
+            loginResult = true;
+            utils.log(`로그인 성공! 아이디: ${userName}`);
         }
     }
 

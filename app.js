@@ -44,12 +44,14 @@ app.use(session({
 
 // Server Router Require
 const router_index = require("./router/router_index"); // Index Router
-const router_login = require("./router/router_login"); // API Router
+const router_login = require("./router/router_login"); // Login Router
+const router_register = require("./router/router_register"); // Register Router
 const router_api = require("./router/router_api"); // API Router
 
 // Server Router Use
 app.use("/", router_index);
 app.use("/login", router_login);
+app.use("/register", router_register);
 app.use("/api", router_api);
 
 // Server Listen

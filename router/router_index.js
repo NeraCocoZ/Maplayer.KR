@@ -16,6 +16,9 @@ const router = express.Router(); // Express Router
 const fs = require("fs"); // File System
 const request = require("request-promise-native");
 
+// Utils 모듈 선언
+const utils = require("../utils");
+
 // 변수 선언
 
 // GET 호출
@@ -43,7 +46,7 @@ router.post(`/getUserName`, (req, res) => {
 });
 
 // POST /checkApiKey
-router.post(`/checkApiKey`, (req, res) => {
+router.post(`/checkApiKey`, async (req, res) => {
     // 변수 선언
     let result = {result: false};
 
@@ -52,10 +55,10 @@ router.post(`/checkApiKey`, (req, res) => {
 
     if(checkLogin){
         // APIKEY 체크
-        let userDataFile = fs.readFileSync(`./data/userdata/${checkLogin}.json`, "utf-8");
-        let userDataJSON = JSON.parse(userDataFile);
+        let sqlUserData = await utils.sendQuery(`SELECT apiKey FROM MAPLAYERKR_USER_TB WHERE userName = "${checkLogin}"`);
+        let userData = sqlUserData[0];
 
-        if(!userDataJSON.apikey)
+        if(!userData.apiKey)
             result.errorMessage = "apikey";
         else
             result.result = true;

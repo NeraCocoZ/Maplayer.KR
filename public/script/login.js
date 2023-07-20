@@ -43,5 +43,56 @@ function checkLogin(){
     // passWord가 빈칸이 아닐때
     else
         passWord.removeClass("border border-2 border-danger");
+}
 
+// 회원가입 입력 확인
+function checkRegister(){
+    // 변수 선언
+    let userName = $("#userName");
+    let passWord = $("#passWord");
+    let passWordCheck = $("#passWordCheck");
+
+    // userName이 빈칸일때
+    if(userName.val() == ""){
+        userName.addClass("border border-2 border-danger");
+        userName.focus();
+        return false;
+    }
+
+    // userName이 빈칸이 아닐때
+    else
+        userName.removeClass("border border-2 border-danger");
+    
+    // passWord가 빈칸일때
+    if(passWord.val() == ""){
+        passWord.addClass("border border-2 border-danger");
+        passWord.focus();
+        return false;
+    }
+
+    // passWord가 빈칸이 아닐때
+    else
+        passWord.removeClass("border border-2 border-danger");
+
+    // passWordCheck가 빈칸일때
+    if(passWordCheck.val() == ""){
+        passWordCheck.addClass("border border-2 border-danger");
+        passWordCheck.focus();
+        return false;
+    }
+
+    // passWordCheck가 빈칸이 아닐때
+    else
+        passWordCheck.removeClass("border border-2 border-danger");
+
+    // passWord와 passWordCheck가 일치하지 않을때
+    if(passWord.val() != passWordCheck.val()){
+        passWordCheck.addClass("border border-2 border-danger");
+        passWordCheck.focus();
+        return false;
+    }
+    
+    // passWord와 passWordCheck가 일치할때
+    else
+        passWordCheck.removeClass("border border-2 border-danger");
 }
