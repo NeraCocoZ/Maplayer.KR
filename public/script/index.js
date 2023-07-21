@@ -11,10 +11,6 @@
  */
 
 $(document).ready(() => {
-    // 랜덤 배경화면
-    let randomBackground = Math.floor(Math.random() * 2) + 1;
-    $("#randomBackground").attr("id", `randomBackground${randomBackground}`);
-
     // API KEY 확인
     $.ajax({
         type: "POST",
@@ -30,7 +26,6 @@ $(document).ready(() => {
 
     // API KEY 등록 버튼 클릭시
     $("#apiKeyButton").click(() => {
-        console.log("A");
         // 변수 선언
         let apiKey = $("#apiKey").val();
 

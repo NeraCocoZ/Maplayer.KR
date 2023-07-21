@@ -10,12 +10,6 @@
  * 이 파일은 "코드 정리 및 최적화"가 완료된 파일입니다.
  */
 
-$(document).ready(() => {
-    // 랜덤 배경화면
-    let randomBackground = Math.floor(Math.random() * 2) + 1;
-    $("#randomBackground").attr("id", `randomBackground${randomBackground}`);
-});
-
 // 로그인 입력 확인
 function checkLogin(){
     // 변수 선언
