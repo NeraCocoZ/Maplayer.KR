@@ -48,7 +48,7 @@ router.post(`/checkApiKey`, async (req, res) => {
     if(apiKeyJSON.result){
         result.result = true;
         result.characterList = apiKeyJSON.characterList;
-        req.session.characterList = characterList;
+        req.session.characterList = apiKeyJSON.characterList;
     }
     
     res.json(result);
@@ -105,28 +105,43 @@ router.post(`/getCharacterListServer`, async(req, res) => {
 // POST /register/register
 router.post(`/register`, async (req, res) => {
     // 변수 선언
-    let {userName, passWord} = req.body;
+    let {userName, passWord, apiKey, mainCharacter} = req.body;
     let registerResult = false;
+    let errorMessage;
 
     // 사용자 이름 중복 확인
     let sqlUserName = await utils.sendQuery(`SELECT userName FROM MAPLAYERKR_USER_TB WHERE userName = "${userName}"`);
     let checkUserName = sqlUserName.length != 0 ? false : true;
 
-    if(checkUserName){
-        // 비밀번호 암호화
-        let passWordSalt = crypto.randomBytes(64).toString("base64");
-        let passWordKay = crypto.pbkdf2Sync(passWord, passWordSalt, 154621, 64, "SHA512").toString("base64");
+    // API Key 중복 확인
+    let sqlApiKey = await utils.sendQuery(`SELECT apiKey FROM MAPLAYERKR_USER_TB WHERE apiKey = "${apiKey}"`);
+    let checkApiKey = sqlApiKey.length != 0 ? false : true;
 
-        // 사용자 업로드
-        utils.sendQuery(`INSERT INTO MAPLAYERKR_USER_TB(userName, passWordKey, passWordSalt) VALUES("${userName}", "${passWordKay}", "${passWordSalt}")`);
-        registerResult = true;
-        utils.log(`회원가입 성공! 아이디: ${userName}`);
+    if(checkUserName){
+        if(checkApiKey){
+            // 비밀번호 암호화
+            let passWordSalt = crypto.randomBytes(64).toString("base64");
+            let passWordKay = crypto.pbkdf2Sync(passWord, passWordSalt, 154621, 64, "SHA512").toString("base64");
+
+            // 대표캐릭터 이름
+            let characterList = req.session.characterList.toString();
+            let mainCharacterName = characterList.split(",")[mainCharacter];
+
+            // 사용자 업로드
+            utils.sendQuery(`INSERT INTO MAPLAYERKR_USER_TB(userName, passWordKey, passWordSalt, apiKey, mainCharacterName) VALUES("${userName}", "${passWordKay}", "${passWordSalt}", "${apiKey}", "${mainCharacterName}")`);
+            registerResult = true;
+            utils.log(`회원가입 성공! 아이디: ${userName}`);
+        }
+        else
+            errorMessage = "Overlap apiKey";
     }
+    else
+        errorMessage = "Overlap userName";
 
     if(registerResult)
-        res.redirect("/login");
+        res.json({result: true});
     else
-        res.redirect("/register");
+        res.json({result: false, errorMessage: errorMessage});
 });
 
 // 모듈 내보내기

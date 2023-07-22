@@ -1,39 +1,46 @@
 /**
- * File Path: /
- * File Name: app.js
+ * 파일 경로: /
+ * 파일 이름: app.js
  * 
- * Author: NeraCocoZ
- * Email : neracocoz@gmail.com
+ * 파일 작성자: NeraCocoZ
+ * 작성자 메일: neracocoz@gmail.com
  * 
- * Create Date: 2023-07-06, Thu
+ * 파일 생성일: 2023-07-22, 토
+ * 
+ * 이 파일은 "코드 정리 및 최적화"가 완료된 파일입니다.
  */
 
-// Module Require
-const express = require("express"); // Express
-const chalk = require("chalk"); // Chalk # 4.1.2
-const path = require("path"); // Path
-const bodyParser = require("body-parser"); // bodyParser
-const session = require("express-session"); // Session
+// 모듈 선언
+const express = require("express");
+const path = require("path");
+const bodyParser = require("body-parser");
+const session = require("express-session");
 
-// Utils Module Require
-const utils = require("./utils"); // Utils
+// 환경변수 선언
+require("dotenv").config();
 
-// Variable Require
-let server_port = 8080;
-let server_address = "0.0.0.0";
+// 유틸 선언
+const utils = require("./utils");
 
-// Server Require
+// 변수 선언
+let serverSetting = {
+    port: 8080,
+    address: "0.0.0.0"
+};
+
+// 서버 선언
 const app = express();
 
-// Server Setting
+// 서버 설정
 app.set("views", path.join(__dirname, "/views"));
-app.set("view engine", "ejs"); 
+app.set("view engine", "ejs");
+
 app.use(express.static("public"));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(session({
     secure: false,
-    secret: "NeRaCocoZ",
+    secret: process.env.SESSION_SECRET_KEY,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -42,17 +49,17 @@ app.use(session({
     }
 }));
 
-// Server Router Require
-const router_index = require("./router/router_index"); // Index Router
-const router_login = require("./router/router_login"); // Login Router
-const router_register = require("./router/router_register"); // Register Router
-const router_api = require("./router/router_api"); // API Router
+// 서버 라우터 선언
+const routerIndex = require("./router/routerIndex"); // 메인 라우터
+const routerLogin = require("./router/routerLogin"); // 로그인 라우터
+const routerRegister = require("./router/routerRegister"); // 회원가입 라우터
+const routerApi = require("./router/routerApi"); // API 라우터
 
-// Server Router Use
-app.use("/", router_index);
-app.use("/login", router_login);
-app.use("/register", router_register);
-app.use("/api", router_api);
+// 서버 라우터 사용
+app.use("/", routerIndex);
+app.use("/login", routerLogin);
+app.use("/register", routerRegister);
+app.use("/api", routerApi);
 
-// Server Listen
-app.listen(server_port, server_address, () => utils.log("Server is open;"));
+// 서버 실행
+app.listen(serverSetting.port, serverSetting.address, () => utils.log("Server is Open;"));

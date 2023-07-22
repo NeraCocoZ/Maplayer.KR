@@ -16,12 +16,12 @@ const mysql = require("mysql2/promise"); // MySQL2
 
 // 상수 선언
 const dbConfig = {
-    "host": "db.rebooter.kr",
-    "port": 3306,
-    "user": "navylimes",
-    "password": "parkseahaun2001!",
-    "database": "navylimes",
-    "connectionLimit": 1000
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    connectionLimit: 1000
 }
 
 // 변수 선언

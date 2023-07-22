@@ -28,7 +28,7 @@ $(document).ready(() => {
                 $("#navLogout").show();
                 $("#navMypage").show();
 
-                $("#navUsername").html(userName);
+                $("#navMypage").html(`<i class="fa-solid fa-user"></i> ${userName}`);
             }
             // 로그인이 안되있으면
             else{
@@ -39,7 +39,7 @@ $(document).ready(() => {
                 $("#navLogout").hide();
                 $("#navMypage").hide();
 
-                $("#navUsername").html(`userName`);
+                $("#navMypage").html(`userName`);
             }
         }
     });
