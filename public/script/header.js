@@ -43,17 +43,17 @@ $(document).ready(() => {
             }
         }
     });
-
-    // 로그아웃
-    function logout(){
-        $.ajax({
-            type: "POST",
-            url: "/login/logout",
-            success: (result) => {
-                // 로그아웃 성공
-                if(result.result)
-                    window.location.href = "/";
-            }
-        });
-    }
 });
+
+// 로그아웃
+function logout(){
+	$.ajax({
+		type: "POST",
+		url: "/login/logout",
+		success: (result) => {
+			// 로그아웃 성공
+			if(result.result)
+				window.location.href = "/";
+		}
+	});
+}

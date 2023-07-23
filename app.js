@@ -53,13 +53,15 @@ app.use(session({
 const routerIndex = require("./router/routerIndex"); // 메인 라우터
 const routerLogin = require("./router/routerLogin"); // 로그인 라우터
 const routerRegister = require("./router/routerRegister"); // 회원가입 라우터
+const routerSearch = require("./router/routerSearch"); // 검색 라우터
 const routerApi = require("./router/routerApi"); // API 라우터
 
 // 서버 라우터 사용
 app.use("/", routerIndex);
 app.use("/login", routerLogin);
 app.use("/register", routerRegister);
+app.use("/search", routerSearch);
 app.use("/api", routerApi);
 
 // 서버 실행
-app.listen(serverSetting.port, serverSetting.address, () => utils.log("Server is Open;"));
+app.listen(serverSetting.port, serverSetting.address, () => utils.log(`서버가 실행되었습니다 - 포트: ${serverSetting.port};`));

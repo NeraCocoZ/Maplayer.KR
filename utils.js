@@ -29,8 +29,15 @@ let pool = mysql.createPool(dbConfig);
 
 // 함수 선언
 // utils.log - 로그를 작성합니다.
-exports.log = (message) => {
-    console.log(chalk.bgWhiteBright(`${chalk.black(`[ ${chalk.magenta("Server")} ] ${message}`)}`));
+exports.log = async (message) => {
+	// 변수 선언
+	let date = new Date();
+	let dateFormat = `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`
+	
+    console.log(chalk.bgWhiteBright(`${chalk.black(`[ ${chalk.blueBright(dateFormat)} ] [ ${chalk.magentaBright("Server")} ] ${message}`)}`));
+	
+	// 로그 저장
+	await this.sendQuery(`INSERT INTO MAPLAYERKR_LOG_TB(log) values("${message}")`);
 }
 
 // utils.sendQuery - SQL을 보내 값을 받아옵니다.

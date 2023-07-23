@@ -29,7 +29,7 @@ router.get(`/`, (req, res) => {
 
 // POST 선언
 // POST /getUserName
-router.post(`/getUserName`, (req, res) => {
+router.post(`/getUserName`, async (req, res) => {
     // 변수 선언
     let result = {result: false};
 
@@ -37,8 +37,11 @@ router.post(`/getUserName`, (req, res) => {
     let {checkLogin} = req.session;
 
     if(checkLogin){
+		// 변수 선언
+		let sqlUserName = await utils.sendQuery(`SELECT mainCharacterName FROM MAPLAYERKR_USER_TB WHERE userName = "${checkLogin}"`);
+		
         result.result = true;
-        result.userName = checkLogin;
+        result.userName = sqlUserName[0].mainCharacterName;
     }
 
     // 데이터 전송

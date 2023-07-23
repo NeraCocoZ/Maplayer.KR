@@ -41,15 +41,28 @@ router.post(`/checkApiKey`, async (req, res) => {
     // 변수 선언
     let result = {result: false};
     let {apiKey} = req.body;
-    let apiKeyUrl = `http://127.0.0.1:8080/api/maplestory/v1/characterList?apiKey=${apiKey}`
-    let apiKeyData = await request.get(apiKeyUrl);
-    let apiKeyJSON = JSON.parse(apiKeyData);
+	
+	// API Key 중복 확인
+    let sqlApiKey = await utils.sendQuery(`SELECT apiKey FROM MAPLAYERKR_USER_TB WHERE apiKey = "${apiKey}"`);
+    let checkApiKey = sqlApiKey.length != 0 ? false : true;
+	
+	// API Key가 중복일때
+	if(!checkApiKey){
+		result.reuslt = false;
+		result.errorMessage = "Overlap apiKey";
+	}
+	else{
+		// 변수 선언
+		let apiKeyUrl = `http://127.0.0.1:8080/api/maplestory/v1/characterList?apiKey=${apiKey}`
+		let apiKeyData = await request.get(apiKeyUrl);
+		let apiKeyJSON = JSON.parse(apiKeyData);
 
-    if(apiKeyJSON.result){
-        result.result = true;
-        result.characterList = apiKeyJSON.characterList;
-        req.session.characterList = apiKeyJSON.characterList;
-    }
+		if(apiKeyJSON.result){
+			result.result = true;
+			result.characterList = apiKeyJSON.characterList;
+			req.session.characterList = apiKeyJSON.characterList;
+		}
+	}
     
     res.json(result);
 });

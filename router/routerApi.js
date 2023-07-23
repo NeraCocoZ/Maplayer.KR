@@ -63,6 +63,9 @@ router.get(`/maplestory/${apiVersion}/characterData`, async (req, res) => {
 
     // 메이플스토리 캐릭터 데이터 크롤링
     try{
+		// 캐릭터 이미지
+		let characterImage = $("tr.search_com_chk > td.left > span > img:nth-child(1)").attr("src");
+		
         // 캐릭터 서버
         let characterServerIcon = $("tr.search_com_chk > td.left > dl > dt > a > img").attr("src");
         let characterServerCode = characterServerIcon.replace("https://ssl.nexon.com/s2/game/maplestory/renewal/common/world_icon/icon_", "").replace(".png", "");
@@ -98,6 +101,7 @@ router.get(`/maplestory/${apiVersion}/characterData`, async (req, res) => {
         result.data = {
             characterServerIcon: characterServerIcon,
             characterServerName: characterServerName,
+			characterImage: characterImage,
             characterName: characterName,
             characterClass: characterClass,
             characterLevel: characterLevel,

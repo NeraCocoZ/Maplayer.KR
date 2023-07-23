@@ -75,8 +75,16 @@ $(document).ready(() => {
             success: (result) => {
                 // API Key가 유효하지 않다면 
                 if(!result.result){
-                    showErrorModal("캐릭터 목록 불러오기 오류", "API Key가 유효하지 않습니다.");
-                    $("#checkApiKey").prop("disabled", false);
+					if(result.errorMessage == "Overlap apiKey"){
+						showErrorModal("캐릭터 목록 불러오기 오류", "이미 사용중인 API Key입니다.");
+						$("#checkApiKey").prop("disabled", false);
+						$("#checkApiKey").html("캐릭터 목록 불러오기");
+					}
+					else{
+						showErrorModal("캐릭터 목록 불러오기 오류", "API Key가 유효하지 않습니다.");
+						$("#checkApiKey").prop("disabled", false);
+						$("#checkApiKey").html("캐릭터 목록 불러오기");
+					}
                 }
                 
                 // API Key가 유효하다면

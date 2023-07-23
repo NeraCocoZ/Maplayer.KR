@@ -57,7 +57,7 @@ router.post(`/login`, async (req, res) => {
             // 로그인 성공
             req.session.checkLogin = userName;
             loginResult = true;
-            utils.log(`로그인 성공! 아이디: ${userName}`);
+            utils.log(`로그인 - 아이디: ${userName};`);
         }
     }
 
@@ -78,6 +78,7 @@ router.post(`/logout`, (req, res) => {
     if(checkLogin){
         delete req.session.checkLogin;
         result.result = true;
+		utils.log(`로그아웃 - 아이디: ${checkLogin};`);
     };
 
     // 데이터 전송
